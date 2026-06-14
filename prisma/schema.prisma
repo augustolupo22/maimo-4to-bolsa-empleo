@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  role          String    @default("CANDIDATE")
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  candidateProfile CandidateProfile?
+  companyProfile   CompanyProfile?
+  applications     Application[]
+  savedJobs        SavedJob[]
+  sessions         Session[]
+  accounts         Account[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model CandidateProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline    String?
+  bio         String?
+  location    String?
+  phone       String?
+  website     String?
+  linkedin    String?
+  github      String?
+  skills      String   // JSON string array
+  experience  String?  // JSON string
+  education   String?  // JSON string
+  resumeUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CompanyProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  description  String?
+  logo         String?
+  website      String?
+  location     String?
+  size         String?
+  industry     String?
+  foundedYear  Int?
+  linkedin     String?
+  twitter      String?
+  verified     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  jobs Job[]
+}
+
+model Job {
+  id              String   @id @default(cuid())
+  companyId       String
+  company         CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  title           String
+  slug            String   @unique
+  description     String
+  requirements    String
+  benefits        String?
+  location        String
+  remoteType      String   // "onsite", "hybrid", "remote"
+  jobType         String   // "full-time", "part-time", "contract", "internship"
+  experienceLevel String   // "entry", "mid", "senior", "lead", "executive"
+  salaryMin       Int?
+  salaryMax       Int?
+  salaryCurrency  String   @default("USD")
+  salaryPeriod    String   @default("year")
+  skills          String   // JSON string array
+  status          String   @default("DRAFT")
+  publishedAt     DateTime?
+  expiresAt       DateTime?
+  viewsCount      Int      @default(0)
+  applicationsCount Int    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  applications Application[]
+  savedJobs    SavedJob[]
+}
+
+model Application {
+  id          String   @id @default(cuid())
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidateId String
+  candidate   User     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  coverLetter String?
+  resumeUrl   String?
+  status      String   @default("PENDING")
+  appliedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([jobId, candidateId])
+}
+
+model SavedJob {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, jobId])
+}
