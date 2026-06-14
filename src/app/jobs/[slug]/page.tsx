@@ -9,6 +9,8 @@ import { Avatar } from '@/components/ui'
 import { Badge } from '@/components/ui'
 import { JobApplicationForm } from './JobApplicationForm'
 
+export const dynamic = 'force-dynamic'
+
 interface JobDetailPageProps {
   params: Promise<{ slug: string }>
 }

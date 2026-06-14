@@ -7,6 +7,8 @@ import { Briefcase, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Ofertas de empleo',
   description: 'Explora cientos de ofertas de pasantías, trabajos part-time y primeras experiencias laborales para estudiantes.',
