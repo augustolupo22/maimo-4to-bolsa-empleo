@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui'
-import { Briefcase, Building2, GraduationCap, Search, ArrowRight, CheckCircle, Shield, Users, TrendingUp } from 'lucide-react'
+import { Briefcase, Building2, GraduationCap, Search, ArrowRight, CheckCircle, Shield, Users, TrendingUp, Award, MapPin, Globe, Users2, BookOpen } from 'lucide-react'
 
 const stats = [
   { value: '500+', label: 'Ofertas activas', icon: Briefcase },
   { value: '200+', label: 'Empresas registradas', icon: Building2 },
-  { value: '50K+', label: 'Estudiantes conectados', icon: GraduationCap },
+  { value: '50K+', label: 'Estudiantes UNM conectados', icon: GraduationCap },
   { value: '95%', label: 'Tasa de respuesta', icon: TrendingUp },
 ]
 
@@ -21,9 +21,19 @@ const features = [
     description: 'Todas las empresas pasan por un proceso de verificación para garantizar ofertas legítimas y seguras.',
   },
   {
-    icon: Users,
-    title: 'Perfil estudiante completo',
-    description: 'Crea tu perfil académico y profesional, sube tu CV y recibe recomendaciones personalizadas.',
+    icon: Globe,
+    title: 'Exclusivo para la UNM',
+    description: 'Solo ofertas laborales de empresas asociadas con la Universidad Maimónides. Conectamos talento universitario con oportunidades profesionales.',
+  },
+  {
+    icon: BookOpen,
+    title: 'Perfil académico UNM',
+    description: 'Tu perfil incluye tu carrera, facultad y año de cursada. Las empresas ven tu formación universitaria y pueden contactarte directamente.',
+  },
+  {
+    icon: Users2,
+    title: 'Comunidad UNM',
+    description: 'Únete a miles de estudiantes y graduados de la UNM que ya confían en nuestra bolsa de trabajo para conectar talento con oportunidades.',
   },
   {
     icon: CheckCircle,
@@ -35,15 +45,15 @@ const features = [
 const ctaSections = [
   {
     title: '¿Buscas tu primera experiencia laboral?',
-    description: 'Crea tu perfil de estudiante, explora cientos de ofertas de pasantías y trabajos junior, y postúlate en minutos.',
+    description: 'Crea tu perfil de estudiante UNM, explora ofertas de pasantías y trabajos junior, y postúlate en minutos.',
     buttonText: 'Crear perfil gratis',
     buttonHref: '/auth/register?role=student',
     icon: GraduationCap,
     variant: 'primary',
   },
   {
-    title: '¿Querés contratar talento universitario?',
-    description: 'Publica tus búsquedas de pasantes y juniors, accede a perfiles verificados y conecta con la futura fuerza laboral.',
+    title: '¿Querés contratar talento de la UNM?',
+    description: 'Publicá tus búsquedas de pasantes y juniors, accedé a perfiles verificados de estudiantes y graduados de la Universidad Maimónides.',
     buttonText: 'Registrar empresa',
     buttonHref: '/auth/register?role=company',
     icon: Building2,
@@ -68,9 +78,8 @@ export default function Home() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight text-balance mb-6 animate-in">
               Tu puente al{' '}
               <span className="text-gradient">mundo laboral</span>
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-in">
-              La bolsa de trabajo universitaria que conecta estudiantes con empresas para pasantías, trabajos part-time y primeras experiencias profesionales.
+            </h1>\n            <p className="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-in">
+              La bolsa de trabajo oficial de la Universidad Maimónides. Conectamos estudiantes y graduados con empresas para pasantías, trabajos part-time y primeras experiencias profesionales.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in">
               <Link href="/jobs">
@@ -106,10 +115,10 @@ export default function Home() {
         <div className="container-main">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Diseñada para <span className="text-primary">estudiantes</span> y <span className="text-primary">empresas</span>
+              Diseñada exclusivamente para <span className="text-primary">la Universidad Maimónides</span>
             </h2>
             <p className="text-lg text-gray-600">
-              Funcionalidades pensadas para que encontrar talento o tu primer trabajo sea simple, rápido y seguro.
+              Funcionalidades pensadas para que encontrar talento o tu primer trabajo sea simple, rápido y seguro, conectando directamente con estudiantes y graduados de la UNM.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -202,7 +211,7 @@ export default function Home() {
         <div className="container-main text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">¿Listo para empezar?</h2>
           <p className="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
-            Únete a miles de estudiantes y empresas que ya confían en Bolsa Empleo para conectar talento con oportunidades.
+            Únete a miles de estudiantes y empresas de la Universidad Maimónides que ya confían en Bolsa Empleo para conectar talento con oportunidades.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/auth/register?role=student">
