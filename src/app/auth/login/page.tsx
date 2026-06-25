@@ -168,13 +168,8 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="text-center text-sm text-gray-600">
-          ¿No tienes cuenta?{' '}
-          <Link href="/auth/register?role=student" className="text-primary font-medium hover:underline">
-            Regístrate gratis
-          </Link>
-        </p>
       </div>
     </div>
+  </div>
   )
 }

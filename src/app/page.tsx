@@ -5,7 +5,7 @@ import { Briefcase, Building2, GraduationCap, Search, ArrowRight, CheckCircle, S
 const stats = [
   { value: '500+', label: 'Ofertas activas', icon: Briefcase },
   { value: '200+', label: 'Empresas registradas', icon: Building2 },
-  { value: '50K+', label: 'Estudiantes UNM conectados', icon: GraduationCap },
+  { value: '50K+', label: 'Estudiantes UMAI conectados', icon: GraduationCap },
   { value: '95%', label: 'Tasa de respuesta', icon: TrendingUp },
 ]
 
@@ -22,18 +22,18 @@ const features = [
   },
   {
     icon: Globe,
-    title: 'Exclusivo para la UNM',
+    title: 'Exclusivo para la UMAI',
     description: 'Solo ofertas laborales de empresas asociadas con la Universidad Maimónides. Conectamos talento universitario con oportunidades profesionales.',
   },
   {
     icon: BookOpen,
-    title: 'Perfil académico UNM',
+    title: 'Perfil académico UMAI',
     description: 'Tu perfil incluye tu carrera, facultad y año de cursada. Las empresas ven tu formación universitaria y pueden contactarte directamente.',
   },
   {
     icon: Users2,
-    title: 'Comunidad UNM',
-    description: 'Únete a miles de estudiantes y graduados de la UNM que ya confían en nuestra bolsa de trabajo para conectar talento con oportunidades.',
+    title: 'Comunidad UMAI',
+    description: 'Únete a miles de estudiantes y graduados de la UMAI que ya confían en nuestra bolsa de trabajo para conectar talento con oportunidades.',
   },
   {
     icon: CheckCircle,
@@ -45,14 +45,14 @@ const features = [
 const ctaSections = [
   {
     title: '¿Buscas tu primera experiencia laboral?',
-    description: 'Crea tu perfil de estudiante UNM, explora ofertas de pasantías y trabajos junior, y postúlate en minutos.',
+    description: 'Crea tu perfil de estudiante UMAI, explora ofertas de pasantías y trabajos junior, y postúlate en minutos.',
     buttonText: 'Crear perfil gratis',
     buttonHref: '/auth/register?role=student',
     icon: GraduationCap,
     variant: 'primary',
   },
   {
-    title: '¿Querés contratar talento de la UNM?',
+    title: '¿Querés contratar talento de la UMAI?',
     description: 'Publicá tus búsquedas de pasantes y juniors, accedé a perfiles verificados de estudiantes y graduados de la Universidad Maimónides.',
     buttonText: 'Registrar empresa',
     buttonHref: '/auth/register?role=company',
@@ -87,11 +87,6 @@ export default function Home() {
                   Explorar ofertas
                 </Button>
               </Link>
-              <Link href="/auth/register?role=student">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  Registrarse gratis
-                </Button>
-              </Link>
             </div>
           </div>
 
@@ -118,7 +113,7 @@ export default function Home() {
               Diseñada exclusivamente para <span className="text-primary">la Universidad Maimónides</span>
             </h2>
             <p className="text-lg text-gray-600">
-              Funcionalidades pensadas para que encontrar talento o tu primer trabajo sea simple, rápido y seguro, conectando directamente con estudiantes y graduados de la UNM.
+              Funcionalidades pensadas para que encontrar talento o tu primer trabajo sea simple, rápido y seguro, conectando directamente con estudiantes y graduados de la UMAI.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -130,36 +125,6 @@ export default function Home() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
                 <p className="text-gray-600">{feature.description}</p>
               </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Sections */}
-      <section className="section bg-gray-50">
-        <div className="container-main">
-          <div className="grid lg:grid-cols-2 gap-8">
-            {ctaSections.map((cta, i) => (
-              <Link key={cta.buttonHref} href={cta.buttonHref} className="group">
-                <div className={`p-8 rounded-2xl ${i === 0 ? 'bg-primary text-white' : 'bg-white border border-gray-200 hover:border-primary/50 hover:shadow-lg'} transition-all duration-300 h-full`}>
-                  <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg mb-4 group-hover:scale-110 transition-transform">
-                    {i === 0 ? (
-                      <cta.icon className="h-7 w-7 text-primary bg-white" />
-                    ) : (
-                      <cta.icon className="h-7 w-7 text-primary" />
-                    )}
-                  </div>
-                  <h3 className="text-2xl font-bold mb-3">{cta.title}</h3>
-                  <p className="mb-6 opacity-90">{cta.description}</p>
-                  <Button
-                    variant={i === 0 ? 'secondary' : 'outline'}
-                    className="w-full sm:w-auto"
-                    rightIcon={<ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />}
-                  >
-                    {cta.buttonText}
-                  </Button>
-                </div>
-              </Link>
             ))}
           </div>
         </div>
@@ -202,28 +167,6 @@ export default function Home() {
                 <p className="text-gray-600">Recibe respuestas, agenda entrevistas y da el primer paso en tu carrera profesional.</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="section bg-primary text-white">
-        <div className="container-main text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">¿Listo para empezar?</h2>
-          <p className="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
-            Únete a miles de estudiantes y empresas de la Universidad Maimónides que ya confían en Bolsa Empleo para conectar talento con oportunidades.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/auth/register?role=student">
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto gap-2" rightIcon={<ArrowRight className="h-4 w-4" />}>
-                Crear mi perfil gratis
-              </Button>
-            </Link>
-            <Link href="/jobs">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-white/10">
-                Ver ofertas actuales
-              </Button>
-            </Link>
           </div>
         </div>
       </section>

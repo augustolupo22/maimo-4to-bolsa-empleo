@@ -215,12 +215,12 @@ export default function StudentProfilePage() {
                   )}
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900 mt-4">
-                  {session?.user?.name || 'Estudiante UNM'}
+                  {session?.user?.name || 'Estudiante UMAI'}
                 </h2>
                 <p className="text-gray-500 text-sm">ID: {studentProfile.id}</p>
                 <Badge variant="success" className="mt-2">
                   <GraduationCap className="h-3 w-3 mr-1" />
-                  Estudiante UNM Verificado
+                  Estudiante UMAI Verificado
                 </Badge>
               </div>
 

@@ -13,7 +13,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: {
     default: 'Bolsa de Empleo - Universidad Maimónides | Pasantías y Primer Empleo',
-    template: '%s | Bolsa Empleo UNM',
+    template: '%s | Bolsa Empleo UMAI',
   },
   description: 'La bolsa de trabajo oficial de la Universidad Maimónides. Conectamos estudiantes y graduados con empresas para pasantías, trabajos part-time y primeras experiencias profesionales.',
   keywords: ['pasantías', 'primer empleo', 'estudiantes', 'bolsa de trabajo', 'universidad maimónides', 'empleo junior', 'graduados', 'Argentina'],
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'es_AR',
     url: 'https://bolsaempleo.maimonides.edu.ar',
-    siteName: 'Bolsa Empleo UNM',
+    siteName: 'Bolsa Empleo UMAI',
     title: 'Bolsa de Empleo - Universidad Maimónides',
     description: 'La bolsa de trabajo oficial de la Universidad Maimónides. Conectamos estudiantes y graduados con empresas.',
     images: [
