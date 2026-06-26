@@ -2,8 +2,7 @@ import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { JobCard } from '@/components/job'
 import { JobFilters } from '@/components/job'
-import { formatSalary } from '@/lib/utils'
-import { Briefcase, Loader2 } from 'lucide-react'
+import { Briefcase } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui'
 
@@ -11,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Ofertas de empleo',
-  description: 'Explora cientos de ofertas de pasantías, trabajos part-time y primeras experiencias laborales para estudiantes.',
+  description: 'Explora cientos de ofertas de pasantias, trabajos part-time y primeras experiencias laborales para estudiantes.',
 }
 
 interface JobsPageProps {
@@ -44,10 +43,10 @@ async function getJobs(searchParams: {
 
   if (searchParams.search) {
     where.OR = [
-      { title: { contains: searchParams.search, mode: 'insensitive' } },
-      { description: { contains: searchParams.search, mode: 'insensitive' } },
-      { company: { name: { contains: searchParams.search, mode: 'insensitive' } } },
-      { skills: { contains: searchParams.search, mode: 'insensitive' } },
+      { title: { contains: searchParams.search } },
+      { description: { contains: searchParams.search } },
+      { company: { name: { contains: searchParams.search } } },
+      { skills: { contains: searchParams.search } },
     ]
   }
 
@@ -64,7 +63,7 @@ async function getJobs(searchParams: {
   }
 
   if (searchParams.location) {
-    where.location = { contains: searchParams.location, mode: 'insensitive' }
+    where.location = { contains: searchParams.location }
   }
 
   const [jobs, total] = await Promise.all([
@@ -98,34 +97,6 @@ async function getJobs(searchParams: {
   }
 }
 
-function JobSkeleton() {
-  return (
-    <article className="border border-gray-200 rounded-lg p-5 animate-pulse">
-      <div className="flex items-start gap-3">
-        <div className="h-12 w-12 rounded-full bg-gray-200" />
-        <div className="flex-1">
-          <div className="h-6 w-3/4 bg-gray-200 rounded mb-2" />
-          <div className="h-4 w-1/2 bg-gray-200 rounded mb-3" />
-          <div className="flex gap-4">
-            <div className="h-4 w-24 bg-gray-200 rounded" />
-            <div className="h-4 w-24 bg-gray-200 rounded" />
-            <div className="h-4 w-24 bg-gray-200 rounded" />
-          </div>
-          <div className="flex gap-2 mt-3">
-            <div className="h-5 w-16 bg-gray-200 rounded-full" />
-            <div className="h-5 w-16 bg-gray-200 rounded-full" />
-            <div className="h-5 w-16 bg-gray-200 rounded-full" />
-          </div>
-        </div>
-      </div>
-      <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between">
-        <div className="h-6 w-24 bg-gray-200 rounded" />
-        <div className="h-6 w-20 bg-gray-200 rounded" />
-      </div>
-    </article>
-  )
-}
-
 export default async function JobsPage({ searchParams }: JobsPageProps) {
   const resolvedParams = await searchParams
   const { jobs, total, totalPages, currentPage } = await getJobs(resolvedParams)
@@ -134,11 +105,10 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Page Header */}
       <section className="bg-white border-b border-gray-200">
         <div className="container-main py-12 lg:py-16">
           <div className="max-w-3xl">
-            <nav className="flex items-center gap-2 text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+            <nav className="flex items-center gap-2 text-sm text-gray-500 mb-4">
               <Link href="/" className="hover:text-primary transition-colors">Inicio</Link>
               <span>/</span>
               <span className="text-gray-900 font-medium">Ofertas</span>
@@ -152,16 +122,13 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         </div>
       </section>
 
-      {/* Jobs Grid */}
       <section className="section">
         <div className="container-main">
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filters Sidebar */}
             <aside className="lg:w-72 flex-shrink-0">
               <JobFilters initialParams={resolvedParams} />
             </aside>
 
-            {/* Jobs List */}
             <div className="flex-1 min-w-0">
               {jobs.length === 0 ? (
                 <div className="text-center py-16">
@@ -169,8 +136,8 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">No se encontraron ofertas</h2>
                   <p className="text-gray-500 mb-6 max-w-md mx-auto">
                     {hasFilters
-                      ? 'Intenta ajustar tus filtros o ampliar tu búsqueda.'
-                      : 'Aún no hay ofertas publicadas. Vuelve pronto.'}
+                      ? 'Intenta ajustar tus filtros o ampliar tu busqueda.'
+                      : 'Aun no hay ofertas publicadas. Vuelve pronto.'}
                   </p>
                   {hasFilters && (
                     <Button variant="outline" onClick={() => window.location.href = '/jobs'}>
@@ -180,15 +147,14 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                 </div>
               ) : (
                 <>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {jobs.map((job) => (
                       <JobCard key={job.id} job={job as any} />
                     ))}
                   </div>
 
-                  {/* Pagination */}
                   {totalPages > 1 && (
-                    <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Paginación">
+                    <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Paginacion">
                       {currentPage > 1 && (
                         <Link
                           href={`/jobs?${new URLSearchParams({ ...resolvedParams, page: String(currentPage - 1) }).toString()}`}
@@ -241,15 +207,14 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="bg-primary text-white section">
         <div className="container-main text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3">¿No encontraste lo que buscabas?</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3">No encontraste lo que buscabas?</h2>
           <p className="text-primary-100 mb-6 max-w-2xl mx-auto">
-            Regístrate gratis y recibe alertas personalizadas cuando se publiquen ofertas que coincidan con tu perfil.
+            Registrate gratis y recibe alertas personalizadas cuando se publiquen ofertas que coincidan con tu perfil.
           </p>
           <Link href="/auth/register?role=student">
-            <Button size="lg" variant="secondary" className="gap-2" rightIcon={<Briefcase className="h-4 w-4" />}>
+            <Button size="lg" variant="secondary" className="gap-2">
               Crear alertas de empleo
             </Button>
           </Link>

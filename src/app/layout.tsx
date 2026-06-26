@@ -28,20 +28,11 @@ export const metadata: Metadata = {
     siteName: 'Bolsa Empleo UMAI',
     title: 'Bolsa de Empleo - Universidad Maimónides',
     description: 'La bolsa de trabajo oficial de la Universidad Maimónides. Conectamos estudiantes y graduados con empresas.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Bolsa de Empleo - Universidad Maimónides',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Bolsa de Empleo - Universidad Maimónides',
     description: 'La bolsa de trabajo oficial de la Universidad Maimónides. Conectamos estudiantes y graduados con empresas.',
-    images: ['/og-image.png'],
   },
   verification: {
     google: 'google-site-verification-code',
@@ -67,9 +58,6 @@ export default function RootLayout({
     <html lang="es" className={`${inter.variable} h-full antialiased`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="min-h-full flex flex-col font-sans text-gray-900 bg-gray-50">
         <Providers>
