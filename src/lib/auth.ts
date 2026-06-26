@@ -6,44 +6,41 @@ import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 import { z } from 'zod'
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: 'jwt' },
-  pages: {
-    signIn: '/auth/login',
-    error: '/auth/error',
-  },
-  providers: [
-    Credentials({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      authorize: async (credentials) => {
-        const parsed = z
-          .object({ email: z.string().email(), password: z.string().min(6) })
-          .safeParse(credentials)
+const providers: any[] = [
+  Credentials({
+    name: 'credentials',
+    credentials: {
+      email: { label: 'Email', type: 'email' },
+      password: { label: 'Password', type: 'password' },
+    },
+    authorize: async (credentials) => {
+      const parsed = z
+        .object({ email: z.string().email(), password: z.string().min(6) })
+        .safeParse(credentials)
 
-        if (!parsed.success) return null
+      if (!parsed.success) return null
 
-        const { email, password } = parsed.data
-        const user = await prisma.user.findUnique({ where: { email } })
+      const { email, password } = parsed.data
+      const user = await prisma.user.findUnique({ where: { email } })
 
-        if (!user || !user.passwordHash) return null
+      if (!user || !user.passwordHash) return null
 
-        const valid = await bcrypt.compare(password, user.passwordHash)
-        if (!valid) return null
+      const valid = await bcrypt.compare(password, user.passwordHash)
+      if (!valid) return null
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          image: user.image,
-        }
-      },
-    }),
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        image: user.image,
+      }
+    },
+  }),
+]
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  providers.push(
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -54,8 +51,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           response_type: 'code',
         },
       },
-    }),
-  ],
+    })
+  )
+}
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: 'jwt' },
+  pages: {
+    signIn: '/auth/login',
+    error: '/auth/error',
+  },
+  providers,
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {

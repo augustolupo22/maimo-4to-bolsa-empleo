@@ -1,42 +1,65 @@
 'use client'
 
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { useState, useEffect } from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui'
 import { Input } from '@/components/ui'
-import { Eye, EyeOff, Loader2, Mail, Lock, AlertCircle, Briefcase, GraduationCap, Building2 } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, AlertCircle, Briefcase, GraduationCap, Building2 } from 'lucide-react'
 
 const DEMO_STUDENT = { email: 'estudiante@test.com', password: 'password123' }
 const DEMO_COMPANY = { email: 'empresa@test.com', password: 'password123' }
 
 export default function LoginPage() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      const role = (session.user as any).role
+      if (role === 'COMPANY') {
+        router.push('/dashboard/companies')
+      } else {
+        router.push('/dashboard/applications')
+      }
+    }
+  }, [session, status, router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
 
-    const res = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    })
+    try {
+      const res = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
 
-    setIsLoading(false)
-
-    if (res?.error) {
-      setError('Email o contrasena incorrectos')
-    } else {
-      router.push('/')
-      router.refresh()
+      if (res?.error) {
+        setError('Email o contrasena incorrectos')
+        setIsLoading(false)
+      } else {
+        const sessionRes = await fetch('/api/auth/session')
+        const sessionData = await sessionRes.json()
+        const role = sessionData?.user?.role
+        if (role === 'COMPANY') {
+          router.push('/dashboard/companies')
+        } else {
+          router.push('/dashboard/applications')
+        }
+        router.refresh()
+      }
+    } catch {
+      setError('Error al conectar con el servidor')
+      setIsLoading(false)
     }
   }
 
