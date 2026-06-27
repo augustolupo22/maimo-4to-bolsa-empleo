@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Ofertas de empleo',
-  description: 'Explora cientos de ofertas de pasantias, trabajos part-time y primeras experiencias laborales para estudiantes.',
+  description: 'Explora cientos de ofertas de pasantías, trabajos part-time y primeras experiencias laborales para estudiantes.',
 }
 
 interface JobsPageProps {
@@ -104,17 +104,18 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
   const hasFilters = resolvedParams.search || resolvedParams.jobType || resolvedParams.remoteType || resolvedParams.experienceLevel || resolvedParams.location
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <section className="bg-white border-b border-gray-200">
-        <div className="container-main py-12 lg:py-16">
+    <div className="min-h-screen">
+      <section className="relative overflow-hidden bg-gradient-hero border-b border-gray-100">
+        <div className="absolute inset-0 bg-gradient-mesh" />
+        <div className="relative container-main py-12 lg:py-16">
           <div className="max-w-3xl">
             <nav className="flex items-center gap-2 text-sm text-gray-500 mb-4">
               <Link href="/" className="hover:text-primary transition-colors">Inicio</Link>
-              <span>/</span>
+              <span className="text-gray-300">/</span>
               <span className="text-gray-900 font-medium">Ofertas</span>
             </nav>
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Ofertas de empleo</h1>
-            <p className="text-lg text-gray-600">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 animate-fade-in-up">Ofertas de empleo</h1>
+            <p className="text-lg text-gray-600 animate-fade-in-up delay-100">
               {total} {total === 1 ? 'oferta' : 'ofertas'} encontradas
               {hasFilters && <span className="text-primary font-medium"> con tus filtros</span>}
             </p>
@@ -131,34 +132,38 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
             <div className="flex-1 min-w-0">
               {jobs.length === 0 ? (
-                <div className="text-center py-16">
-                  <Briefcase className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <div className="text-center py-20 animate-fade-in-up">
+                  <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-gray-100 mb-6">
+                    <Briefcase className="h-10 w-10 text-gray-300" />
+                  </div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">No se encontraron ofertas</h2>
                   <p className="text-gray-500 mb-6 max-w-md mx-auto">
                     {hasFilters
-                      ? 'Intenta ajustar tus filtros o ampliar tu busqueda.'
-                      : 'Aun no hay ofertas publicadas. Vuelve pronto.'}
+                      ? 'Intentá ajustar tus filtros o ampliar tu búsqueda.'
+                      : 'Aún no hay ofertas publicadas. Volvé pronto.'}
                   </p>
                   {hasFilters && (
-                    <Button variant="outline" onClick={() => window.location.href = '/jobs'}>
+                    <Button variant="outline" onClick={() => window.location.href = '/jobs'} className="rounded-xl">
                       Limpiar filtros
                     </Button>
                   )}
                 </div>
               ) : (
                 <>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {jobs.map((job) => (
-                      <JobCard key={job.id} job={job as any} />
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {jobs.map((job, i) => (
+                      <div key={job.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 50}ms` }}>
+                        <JobCard job={job as any} />
+                      </div>
                     ))}
                   </div>
 
                   {totalPages > 1 && (
-                    <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Paginacion">
+                    <nav className="mt-10 flex items-center justify-center gap-2" aria-label="Paginación">
                       {currentPage > 1 && (
                         <Link
                           href={`/jobs?${new URLSearchParams({ ...resolvedParams, page: String(currentPage - 1) }).toString()}`}
-                          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-200"
                         >
                           Anterior
                         </Link>
@@ -179,10 +184,10 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                             <Link
                               key={pageNum}
                               href={`/jobs?${new URLSearchParams({ ...resolvedParams, page: String(pageNum) }).toString()}`}
-                              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                              className={`w-10 h-10 flex items-center justify-center text-sm font-medium rounded-xl transition-all duration-200 ${
                                 pageNum === currentPage
-                                  ? 'bg-primary text-white'
-                                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                                  ? 'bg-primary text-white shadow-md shadow-primary/25'
+                                  : 'text-gray-700 bg-white border border-gray-200 hover:bg-gray-50'
                               }`}
                             >
                               {pageNum}
@@ -193,7 +198,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                       {currentPage < totalPages && (
                         <Link
                           href={`/jobs?${new URLSearchParams({ ...resolvedParams, page: String(currentPage + 1) }).toString()}`}
-                          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-200"
                         >
                           Siguiente
                         </Link>
@@ -207,14 +212,16 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         </div>
       </section>
 
-      <section className="bg-primary text-white section">
-        <div className="container-main text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-3">No encontraste lo que buscabas?</h2>
-          <p className="text-primary-100 mb-6 max-w-2xl mx-auto">
-            Registrate gratis y recibe alertas personalizadas cuando se publiquen ofertas que coincidan con tu perfil.
+      <section className="section relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-primary" />
+        <div className="absolute inset-0 bg-gradient-mesh opacity-30" />
+        <div className="relative container-main text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">No encontraste lo que buscabas?</h2>
+          <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
+            Registrate gratis y recibí alertas personalizadas cuando se publiquen ofertas que coincidan con tu perfil.
           </p>
           <Link href="/auth/register?role=student">
-            <Button size="lg" variant="secondary" className="gap-2">
+            <Button size="lg" variant="secondary" className="gap-2 rounded-xl shadow-lg">
               Crear alertas de empleo
             </Button>
           </Link>

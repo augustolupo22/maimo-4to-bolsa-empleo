@@ -4,7 +4,8 @@ import Google from 'next-auth/providers/google'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
-import { z } from 'zod'
+
+const hasGoogle = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
 const providers: any[] = [
   Credentials({
@@ -14,36 +15,39 @@ const providers: any[] = [
       password: { label: 'Password', type: 'password' },
     },
     authorize: async (credentials) => {
-      const parsed = z
-        .object({ email: z.string().email(), password: z.string().min(6) })
-        .safeParse(credentials)
+      const email = credentials?.email as string | undefined
+      const password = credentials?.password as string | undefined
 
-      if (!parsed.success) return null
+      if (!email || !password) return null
 
-      const { email, password } = parsed.data
-      const user = await prisma.user.findUnique({ where: { email } })
+      try {
+        const user = await prisma.user.findUnique({ where: { email } })
 
-      if (!user || !user.passwordHash) return null
+        if (!user || !user.passwordHash) return null
 
-      const valid = await bcrypt.compare(password, user.passwordHash)
-      if (!valid) return null
+        const valid = await bcrypt.compare(password, user.passwordHash)
+        if (!valid) return null
 
-      return {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        image: user.image,
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          image: user.image,
+        }
+      } catch (error) {
+        console.error('[auth] authorize error:', error)
+        return null
       }
     },
   }),
 ]
 
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+if (hasGoogle) {
   providers.push(
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
           prompt: 'consent',
@@ -56,7 +60,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: hasGoogle ? PrismaAdapter(prisma) : undefined,
   session: { strategy: 'jwt' },
   pages: {
     signIn: '/auth/login',

@@ -1,35 +1,39 @@
 'use client'
 
-import Link from 'next/link'
+import { useEffect } from 'react'
 import { Button } from '@/components/ui'
-import { AlertCircle, Home, RefreshCcw } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 
-export default function GlobalError({
+export default function Error({
   error,
   reset,
 }: {
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => {
+    console.error(error)
+  }, [error])
+
   return (
-    <div className="min-h-[60vh] flex items-center justify-center py-12 px-4 bg-gray-50">
-      <div className="max-w-md w-full text-center">
-        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
-          <AlertCircle className="h-8 w-8 text-red-600" />
+    <div className="min-h-[70vh] flex items-center justify-center px-4">
+      <div className="text-center animate-fade-in-up">
+        <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-red-50 mb-6">
+          <AlertTriangle className="h-10 w-10 text-red-500" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Algo salio mal</h1>
-        <p className="text-gray-600 mb-8">Ocurrio un error inesperado. Por favor, intenta de nuevo.</p>
-        <div className="flex flex-col gap-3">
-          <Button onClick={reset} className="w-full gap-2">
-            <RefreshCcw className="h-4 w-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Algo salió mal</h2>
+        <p className="text-gray-600 mb-8 max-w-md mx-auto">
+          Ocurrió un error inesperado. Por favor, intentá de nuevo.
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          <Button onClick={reset} className="gap-2 rounded-xl shadow-lg shadow-primary/25">
+            <RefreshCw className="h-4 w-4" />
             Intentar de nuevo
           </Button>
-          <Link href="/">
-            <Button variant="outline" className="w-full gap-2">
-              <Home className="h-4 w-4" />
-              Volver al inicio
-            </Button>
-          </Link>
+          <Button variant="outline" className="gap-2 rounded-xl" onClick={() => window.location.href = '/'}>
+            <Home className="h-4 w-4" />
+            Volver al inicio
+          </Button>
         </div>
       </div>
     </div>
