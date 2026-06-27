@@ -7,7 +7,7 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   src?: string | null
   alt?: string
   fallback?: string
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 }
 
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
@@ -17,6 +17,7 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
       md: 'h-10 w-10 text-sm',
       lg: 'h-12 w-12 text-base',
       xl: 'h-16 w-16 text-lg',
+      '2xl': 'h-24 w-24 text-2xl',
     }
     
     const getInitials = (name: string) => {

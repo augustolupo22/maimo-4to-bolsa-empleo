@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui'
@@ -8,15 +8,18 @@ import { Input } from '@/components/ui'
 import { Textarea } from '@/components/ui'
 import { Badge } from '@/components/ui'
 import { Avatar } from '@/components/ui'
-import { Save, Building2, Globe, MapPin, Users, Calendar, Edit, Loader2 } from 'lucide-react'
+import { Save, Building2, Globe, MapPin, Users, Calendar, Edit, Loader2, Camera } from 'lucide-react'
 import { COMPANY_SIZES } from '@/lib/utils'
 
 export default function CompanyProfilePage() {
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any>(null)
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -34,6 +37,7 @@ export default function CompanyProfilePage() {
         .then((res) => res.json())
         .then((data) => {
           setProfile(data.profile)
+          setCompanyLogo(data.profile?.logo || data.user?.image || null)
           if (data.profile) {
             setFormData({
               name: data.profile.name || '',
@@ -96,6 +100,50 @@ export default function CompanyProfilePage() {
     )
   }
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('La imagen no puede superar 2MB')
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      const formDataUpload = new FormData()
+      formDataUpload.append('file', file)
+      formDataUpload.append('type', 'logo')
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+      })
+
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json()
+        alert(err.error || 'Error al subir la imagen')
+        return
+      }
+
+      const { url } = await uploadRes.json()
+      setCompanyLogo(url)
+
+      await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, logo: url }),
+      })
+
+      await update()
+    } catch (err) {
+      console.error('Error uploading logo:', err)
+      alert('Error al subir la imagen')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const handleSave = async () => {
     setIsSaving(true)
     try {
@@ -149,15 +197,35 @@ export default function CompanyProfilePage() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-24">
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24">
               <div className="text-center mb-6">
-                <Avatar
-                  src={profile?.logo}
-                  alt={formData.name}
-                  fallback={formData.name?.charAt(0) || 'E'}
-                  size="xl"
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleLogoUpload}
                 />
-                <h2 className="text-xl font-semibold text-gray-900 mt-4">{formData.name || 'Mi Empresa'}</h2>
+                <div
+                  className="relative inline-block cursor-pointer group"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Avatar
+                    src={companyLogo}
+                    alt={formData.name}
+                    fallback={formData.name?.charAt(0) || 'E'}
+                    size="2xl"
+                  />
+                  <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    {isUploading ? (
+                      <Loader2 className="h-8 w-8 text-white animate-spin" />
+                    ) : (
+                      <Camera className="h-8 w-8 text-white" />
+                    )}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">Click para cambiar logo</p>
+                <h2 className="text-xl font-semibold text-gray-900 mt-3">{formData.name || 'Mi Empresa'}</h2>
                 {profile?.verified && (
                   <Badge variant="success" className="mt-2">
                     <Building2 className="h-3 w-3 mr-1" />
@@ -190,7 +258,7 @@ export default function CompanyProfilePage() {
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-gray-100 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Informacion Basica</h3>
               {isEditing ? (
                 <div className="space-y-4">
@@ -200,6 +268,7 @@ export default function CompanyProfilePage() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Ej: TechCorp SA"
+                      className="rounded-xl"
                     />
                   </div>
                   <div>
@@ -209,6 +278,7 @@ export default function CompanyProfilePage() {
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       placeholder="Describe tu empresa, mision y valores"
                       rows={4}
+                      className="rounded-xl"
                     />
                   </div>
                 </div>
@@ -226,7 +296,7 @@ export default function CompanyProfilePage() {
               )}
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-gray-100 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Detalles de la empresa</h3>
               {isEditing ? (
                 <div className="grid gap-4 md:grid-cols-2">
@@ -236,6 +306,7 @@ export default function CompanyProfilePage() {
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       placeholder="Ciudad, pais"
+                      className="rounded-xl"
                     />
                   </div>
                   <div>
@@ -243,7 +314,7 @@ export default function CompanyProfilePage() {
                     <select
                       value={formData.size}
                       onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                      className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="flex h-10 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     >
                       <option value="">Seleccionar</option>
                       {COMPANY_SIZES.map((s) => (
@@ -257,6 +328,7 @@ export default function CompanyProfilePage() {
                       value={formData.industry}
                       onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                       placeholder="Ej: Tecnologia"
+                      className="rounded-xl"
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -265,6 +337,7 @@ export default function CompanyProfilePage() {
                       value={formData.website}
                       onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                       placeholder="https://company.example.com"
+                      className="rounded-xl"
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -273,6 +346,7 @@ export default function CompanyProfilePage() {
                       value={formData.linkedin}
                       onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
                       placeholder="https://linkedin.com/company/company-name"
+                      className="rounded-xl"
                     />
                   </div>
                 </div>

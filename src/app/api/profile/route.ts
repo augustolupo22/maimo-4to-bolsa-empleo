@@ -50,7 +50,14 @@ export async function PUT(request: NextRequest) {
     const userRole = (session.user as any).role
 
     if (userRole === 'STUDENT') {
-      const { headline, bio, location, phone, website, linkedin, github, skills } = body
+      const { headline, bio, location, phone, website, linkedin, github, skills, image } = body
+
+      if (image !== undefined) {
+        await prisma.user.update({
+          where: { id: session.user.id },
+          data: { image },
+        })
+      }
 
       const profile = await prisma.candidateProfile.upsert({
         where: { userId: session.user.id },
@@ -79,7 +86,14 @@ export async function PUT(request: NextRequest) {
 
       return NextResponse.json({ message: 'Perfil actualizado', profile })
     } else if (userRole === 'COMPANY') {
-      const { name, description, website, location, size, industry, linkedin } = body
+      const { name, description, website, location, size, industry, linkedin, logo } = body
+
+      if (logo !== undefined) {
+        await prisma.user.update({
+          where: { id: session.user.id },
+          data: { image: logo },
+        })
+      }
 
       const profile = await prisma.companyProfile.upsert({
         where: { userId: session.user.id },
@@ -91,6 +105,7 @@ export async function PUT(request: NextRequest) {
           size,
           industry,
           linkedin,
+          logo,
         },
         create: {
           userId: session.user.id,
@@ -101,6 +116,7 @@ export async function PUT(request: NextRequest) {
           size,
           industry,
           linkedin,
+          logo,
         },
       })
 

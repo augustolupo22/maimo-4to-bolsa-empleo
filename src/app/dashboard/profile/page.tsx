@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui'
@@ -8,14 +8,17 @@ import { Input } from '@/components/ui'
 import { Textarea } from '@/components/ui'
 import { Badge } from '@/components/ui'
 import { Avatar } from '@/components/ui'
-import { Save, User, GraduationCap, MapPin, Phone, Globe, ExternalLink, Edit, Loader2 } from 'lucide-react'
+import { Save, User, GraduationCap, MapPin, Phone, Globe, ExternalLink, Edit, Loader2, Camera } from 'lucide-react'
 
 export default function StudentProfilePage() {
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any>(null)
+  const [userImage, setUserImage] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
     headline: '',
@@ -33,6 +36,7 @@ export default function StudentProfilePage() {
         .then((res) => res.json())
         .then((data) => {
           setProfile(data.profile)
+          setUserImage(data.user?.image || null)
           if (data.profile) {
             setFormData({
               headline: data.profile.headline || '',
@@ -97,6 +101,50 @@ export default function StudentProfilePage() {
 
   const skills = profile?.skills ? JSON.parse(profile.skills) : []
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('La imagen no puede superar 2MB')
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      const formDataUpload = new FormData()
+      formDataUpload.append('file', file)
+      formDataUpload.append('type', 'avatar')
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+      })
+
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json()
+        alert(err.error || 'Error al subir la imagen')
+        return
+      }
+
+      const { url } = await uploadRes.json()
+      setUserImage(url)
+
+      await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, image: url }),
+      })
+
+      await update()
+    } catch (err) {
+      console.error('Error uploading image:', err)
+      alert('Error al subir la imagen')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const handleSave = async () => {
     setIsSaving(true)
     try {
@@ -150,16 +198,36 @@ export default function StudentProfilePage() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 sticky top-24">
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24">
               <div className="text-center mb-6">
-                <Avatar
-                  src={session?.user?.image || undefined}
-                  alt={session?.user?.name || 'Usuario'}
-                  fallback={session?.user?.name?.charAt(0) || 'U'}
-                  size="xl"
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleImageUpload}
                 />
-                <h2 className="text-xl font-semibold text-gray-900 mt-4">
-                  {session?.user?.name || 'Estudiante UMAI'}
+                <div
+                  className="relative inline-block cursor-pointer group"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Avatar
+                    src={userImage || (session?.user as any)?.image}
+                    alt={(session?.user as any)?.name || 'Usuario'}
+                    fallback={(session?.user as any)?.name?.charAt(0) || 'U'}
+                    size="2xl"
+                  />
+                  <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    {isUploading ? (
+                      <Loader2 className="h-8 w-8 text-white animate-spin" />
+                    ) : (
+                      <Camera className="h-8 w-8 text-white" />
+                    )}
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">Click para cambiar foto</p>
+                <h2 className="text-xl font-semibold text-gray-900 mt-3">
+                  {(session?.user as any)?.name || 'Estudiante UMAI'}
                 </h2>
                 <Badge variant="success" className="mt-2">
                   <GraduationCap className="h-3 w-3 mr-1" />
@@ -214,7 +282,7 @@ export default function StudentProfilePage() {
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-gray-100 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Informacion Basica</h3>
               {isEditing ? (
                 <div className="space-y-4">
@@ -224,6 +292,7 @@ export default function StudentProfilePage() {
                       value={formData.headline}
                       onChange={(e) => setFormData({ ...formData, headline: e.target.value })}
                       placeholder="Ej: Estudiante de Ingenieria en Sistemas"
+                      className="rounded-xl"
                     />
                   </div>
                   <div>
@@ -233,6 +302,7 @@ export default function StudentProfilePage() {
                       onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                       placeholder="Cuentanos sobre ti, tus intereses y objetivos"
                       rows={4}
+                      className="rounded-xl"
                     />
                   </div>
                 </div>
@@ -251,7 +321,7 @@ export default function StudentProfilePage() {
             </div>
 
             {isEditing && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Informacion de Contacto</h3>
                 <div className="space-y-4">
                   <div>
@@ -260,6 +330,7 @@ export default function StudentProfilePage() {
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       placeholder="Ciudad, pais"
+                      className="rounded-xl"
                     />
                   </div>
                   <div>
@@ -268,6 +339,7 @@ export default function StudentProfilePage() {
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       placeholder="+54 11 1234-5678"
+                      className="rounded-xl"
                     />
                   </div>
                   <div>
@@ -276,6 +348,7 @@ export default function StudentProfilePage() {
                       value={formData.website}
                       onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                       placeholder="https://portfolio.example.com"
+                      className="rounded-xl"
                     />
                   </div>
                   <div>
@@ -284,6 +357,7 @@ export default function StudentProfilePage() {
                       value={formData.linkedin}
                       onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
                       placeholder="https://linkedin.com/in/usuario"
+                      className="rounded-xl"
                     />
                   </div>
                   <div>
@@ -292,6 +366,7 @@ export default function StudentProfilePage() {
                       value={formData.github}
                       onChange={(e) => setFormData({ ...formData, github: e.target.value })}
                       placeholder="https://github.com/usuario"
+                      className="rounded-xl"
                     />
                   </div>
                 </div>
