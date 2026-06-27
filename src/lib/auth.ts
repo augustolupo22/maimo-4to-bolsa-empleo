@@ -1,13 +1,9 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
-import Google from 'next-auth/providers/google'
-import { PrismaAdapter } from '@auth/prisma-adapter'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 
-const hasGoogle = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
-
-const providers: any[] = [
+const providers = [
   Credentials({
     name: 'credentials',
     credentials: {
@@ -43,24 +39,7 @@ const providers: any[] = [
   }),
 ]
 
-if (hasGoogle) {
-  providers.push(
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: 'consent',
-          access_type: 'offline',
-          response_type: 'code',
-        },
-      },
-    })
-  )
-}
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: hasGoogle ? PrismaAdapter(prisma) : undefined,
   session: { strategy: 'jwt' },
   pages: {
     signIn: '/auth/login',
@@ -68,13 +47,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   providers,
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id as string
         token.role = (user as any).role
-      }
-      if (account?.provider === 'google') {
-        token.provider = 'google'
       }
       return token
     },
