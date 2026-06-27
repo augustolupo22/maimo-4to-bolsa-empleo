@@ -1,12 +1,12 @@
 {
-  "buildCommand": "prisma generate && next build",
-  "devCommand": "next dev",
-  "installCommand": "npm install",
   "framework": "nextjs",
   "regions": ["iad1"],
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 30
     }
+  },
+  "env": {
+    "NEXTAUTH_SECRET": "bolsa-empleo-umai-secret-key-2026-minimum-32-chars"
   }
 }
